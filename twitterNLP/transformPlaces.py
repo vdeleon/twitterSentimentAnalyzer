@@ -6,9 +6,11 @@ from DatabaseManager import DatabaseManager
 def main():
 
 	print "Reading minID"
-	fp = open('MinID.txt', 'r')
+	fp = open('ids.txt', 'r')
 	for line in fp:
-		minID = line.strip()
+		ids = line.strip().split(",")
+		minID = ids[0]
+		maxID = ids[1]
 	fp.close()
 
 	print "minID: ", minID
@@ -18,11 +20,10 @@ def main():
 	print "running query..."
 
 	places = dbm.runQuery("SELECT id, bounding_box FROM Places \
-						   WHERE lat_1 IS NULL AND id > {}".format(minID))
+						   WHERE lat_1 IS NULL AND id > {0} AND id < {1}".format(minID, maxID))
 
 	print "query done!"
 	cont = 0.0;
-	total = 328505.0;
 
 	for row in places:
 		try:
@@ -43,7 +44,7 @@ def main():
 			long_4 = box_coords[3][0]
 
 			query = u"""UPDATE Places SET lat_1={0}, long_1={1}, lat_2={2}, long_2={3},lat_3={4}, long_3={5}, lat_4={6}, long_4={7} WHERE id = {8}""".format(lat_1, long_1, lat_2, long_2, lat_3, long_3, lat_4, long_4, idPlace)
-			print "%i - %f" % (cont, cont / total)
+			print "%i" % (cont)
 			dbm.runCommit(query)
 
 		except Exception as e:
